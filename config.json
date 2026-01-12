@@ -2,7 +2,7 @@
     "proxy": {
         "url": "http://127.0.0.1:7890",
         "rss": false,
-        "bot": true
+        "bot": false
     },
 
     "rss": {
