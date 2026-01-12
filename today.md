@@ -1,44 +1,50 @@
 # 每日安全资讯（2026-01-12）
 
-- 先知安全技术社区
-  - [利用控制面板COM对象实现内网横向移动的新型DCOM攻击技术](https://xz.aliyun.com/news/91110)
-- 先知安全技术社区
-  - [利用控制面板COM对象实现内网横向移动的新型DCOM攻击技术](https://xz.aliyun.com/news/91110)
 - SecWiki News
   - [SecWiki News 2026-01-11 Review](http://www.sec-wiki.com/?2026-01-11)
+- 先知安全技术社区
+  - [利用控制面板COM对象实现内网横向移动的新型DCOM攻击技术](https://xz.aliyun.com/news/91110)
 - Blog | AppSec Labs
   - [AI-Driven Penetration Testing For Evolving Threats: A CISO Guide](https://appsec-labs.com/ai-driven-penetration-testing-for-evolving-threats-a-ciso-guide/)
 - Recent Commits to cve:main
   - [Update Sun Jan 11 11:34:32 UTC 2026](https://github.com/trickest/cve/commit/a5fc74151c19941f2075f06a381982a4354e30fc)
+- 先知安全技术社区
+  - [利用控制面板COM对象实现内网横向移动的新型DCOM攻击技术](https://xz.aliyun.com/news/91110)
 - Malware-Traffic-Analysis.net - Blog Entries
   - [2026-01-10: Ten days of scans and probes and web traffic hitting my web server](https://www.malware-traffic-analysis.net/2026/01/10/index.html)
 - nikic's blog
   - [LLVM: The bad parts](https://www.npopov.com/2026/01/11/LLVM-The-bad-parts.html)
 - 奇客Solidot–传递最新科技情报
   - [伊朗断网三天](https://www.solidot.org/story?sid=83275)
-- 黑鸟
-  - [网安Ai框架CAI与机器狗结合可进行近源渗透](https://mp.weixin.qq.com/s?__biz=MzAxOTM1MDQ1NA==&mid=2451184783&idx=1&sn=bf4319f551f7c78d488e27136e8320a6)
-- 皮相
-  - [卫浴铝合金置物架的粘合固定](https://mp.weixin.qq.com/s?__biz=MzI0NDA5MDYyNA==&mid=2648257317&idx=1&sn=f1e15d7bd33822ff2162f78b7fd0c24f)
-- 青衣十三楼飞花堂
-  - [因式分解练习题](https://mp.weixin.qq.com/s?__biz=MzUzMjQyMDE3Ng==&mid=2247488951&idx=1&sn=9a69cd7ebf3b4425ca73567ded76baf5)
-- 丁爸 情报分析师的工具箱
-  - [【资料】美国退出的66个国际组织](https://mp.weixin.qq.com/s?__biz=MzI2MTE0NTE3Mw==&mid=2651153735&idx=1&sn=447e5ebde9a4259d2dd9107ec1725e79)
+- Shostack & Friends Blog
+  - [Take Control of What you Read, Redux](https://shostack.org/blog/take-control-of-what-you-read-redux/)
 - 安全分析与研究
   - [伪装成LetsVPN安装程序银狐最新攻击样本分析](https://mp.weixin.qq.com/s?__biz=MzA4ODEyODA3MQ==&mid=2247495322&idx=1&sn=e3fac8f2e09db31d6ae38c940c776f75)
-- 威努特安全网络
-  - [一文了解IACS船载系统和设备网络韧性统一要求UR E27](https://mp.weixin.qq.com/s?__biz=MzAwNTgyODU3NQ==&mid=2651139469&idx=1&sn=1624561309a0ac6f43bbeb42eda20e10)
-- 电子物证
-  - [内存取证](https://mp.weixin.qq.com/s?__biz=MzAwNDcwMDgzMA==&mid=2651048892&idx=1&sn=bf7b3df8f15ddf4b7717f990b4374c6b)
-  - [【电子数据审查与海量数据质证】](https://mp.weixin.qq.com/s?__biz=MzAwNDcwMDgzMA==&mid=2651048892&idx=2&sn=e7558bb1cf839b2eac3e81c38a613688)
-- 极客公园
-  - [20 周年版 iPhone 爆料：直屏+曲面玻璃；何小鹏：未来五年全力推进全球化；黄仁勋：「AI 末日论」对社会毫无益处 | 极客早知道](https://mp.weixin.qq.com/s?__biz=MTMwNDMwODQ0MQ==&mid=2653097006&idx=1&sn=ef31fb39df05b47939a5f028ea7833ea)
-- 吾爱破解论坛
-  - [某短视频指纹和纯算 sig3 逆向分析](https://mp.weixin.qq.com/s?__biz=MjM5Mjc3MDM2Mw==&mid=2651143477&idx=1&sn=1b3920382e039bdba49d844aa0b0dd05)
+- 皮相
+  - [卫浴铝合金置物架的粘合固定](https://mp.weixin.qq.com/s?__biz=MzI0NDA5MDYyNA==&mid=2648257317&idx=1&sn=f1e15d7bd33822ff2162f78b7fd0c24f)
+- 黑鸟
+  - [网安Ai框架CAI与机器狗结合可进行近源渗透](https://mp.weixin.qq.com/s?__biz=MzAxOTM1MDQ1NA==&mid=2451184783&idx=1&sn=bf4319f551f7c78d488e27136e8320a6)
+- 青衣十三楼飞花堂
+  - [因式分解练习题](https://mp.weixin.qq.com/s?__biz=MzUzMjQyMDE3Ng==&mid=2247488951&idx=1&sn=9a69cd7ebf3b4425ca73567ded76baf5)
+- 二道情报贩子
+  - [无形杀器：美军声波武器突袭委内瑞拉，鼻血呕血背后的致命共振真相](https://mp.weixin.qq.com/s?__biz=MzU5NTA3MTk5Ng==&mid=2247489958&idx=1&sn=7f1b2d3030463e1ca1dbfaf164e74e1a)
 - 安全圈
   - [【安全圈】BreachForums论坛数据库32.4万个账户泄露](https://mp.weixin.qq.com/s?__biz=MzIzMzE4NDU1OQ==&mid=2652073661&idx=1&sn=47a2ea7b05c99c8d23e9b8e6fb8ab229)
   - [【安全圈】Meta澄清Instagram“密码重置风暴”非发生数据泄露](https://mp.weixin.qq.com/s?__biz=MzIzMzE4NDU1OQ==&mid=2652073661&idx=2&sn=23f8372e701cf483b7cf976c0b207268)
   - [【安全圈】恶性 Chrome 扩展盗窃用户信息](https://mp.weixin.qq.com/s?__biz=MzIzMzE4NDU1OQ==&mid=2652073661&idx=3&sn=b285a1738ee7ba582e9647f76afac35a)
+- 电子物证
+  - [内存取证](https://mp.weixin.qq.com/s?__biz=MzAwNDcwMDgzMA==&mid=2651048892&idx=1&sn=bf7b3df8f15ddf4b7717f990b4374c6b)
+  - [【电子数据审查与海量数据质证】](https://mp.weixin.qq.com/s?__biz=MzAwNDcwMDgzMA==&mid=2651048892&idx=2&sn=e7558bb1cf839b2eac3e81c38a613688)
+- 吾爱破解论坛
+  - [某短视频指纹和纯算 sig3 逆向分析](https://mp.weixin.qq.com/s?__biz=MjM5Mjc3MDM2Mw==&mid=2651143477&idx=1&sn=1b3920382e039bdba49d844aa0b0dd05)
+- 极客公园
+  - [20 周年版 iPhone 爆料：直屏+曲面玻璃；何小鹏：未来五年全力推进全球化；黄仁勋：「AI 末日论」对社会毫无益处 | 极客早知道](https://mp.weixin.qq.com/s?__biz=MTMwNDMwODQ0MQ==&mid=2653097006&idx=1&sn=ef31fb39df05b47939a5f028ea7833ea)
+- 威努特安全网络
+  - [一文了解IACS船载系统和设备网络韧性统一要求UR E27](https://mp.weixin.qq.com/s?__biz=MzAwNTgyODU3NQ==&mid=2651139469&idx=1&sn=1624561309a0ac6f43bbeb42eda20e10)
+- 情报分析师
+  - [10个特工日常技巧，普通人也能用来提升生活安全感](https://mp.weixin.qq.com/s?__biz=MzA3Mjc1MTkwOA==&mid=2650565993&idx=1&sn=824139d5539256e70fe59b0b30dde36b)
+- 丁爸 情报分析师的工具箱
+  - [【资料】美国退出的66个国际组织](https://mp.weixin.qq.com/s?__biz=MzI2MTE0NTE3Mw==&mid=2651153735&idx=1&sn=447e5ebde9a4259d2dd9107ec1725e79)
 - Over Security - Cybersecurity news aggregator
   - [California bans data broker reselling health data of millions](https://www.bleepingcomputer.com/news/legal/california-bans-data-broker-reselling-health-data-of-millions/)
   - [Instagram denies breach amid claims of 17 million account data leak](https://www.bleepingcomputer.com/news/security/instagram-denies-breach-amid-claims-of-17-million-account-data-leak/)
@@ -47,10 +53,10 @@
   - [Info Sec Unplugged – CISO e vCISO](https://roccosicilia.com/2026/01/11/info-sec-unplugged-ciso-e-vciso/)
   - [Detecting Vectored Exception Handling Squared in an EDR](https://fluxsec.red/detecting-vectored-exception-handling-malware-rust-edr-windows-kernel)
   - [Microsoft is retiring 'Send to Kindle' in Word](https://www.bleepingcomputer.com/news/microsoft/microsoft-is-retiring-send-to-kindle-in-word/)
-- 二道情报贩子
-  - [无形杀器：美军声波武器突袭委内瑞拉，鼻血呕血背后的致命共振真相](https://mp.weixin.qq.com/s?__biz=MzU5NTA3MTk5Ng==&mid=2247489958&idx=1&sn=7f1b2d3030463e1ca1dbfaf164e74e1a)
 - IT Service Management News
   - [SA 8000:2026 - Standard per il lavoro dignitoso](http://blog.cesaregallotti.it/2026/01/sa-80002026-standard-per-il-lavoro.html)
+- cavallette
+  - [Newsletter Autistici/Inventati  01-2026](https://cavallette.noblogs.org/2026/01/10025)
 - Have I Been Pwned latest breaches
   - [Instagram - 6,215,150 breached accounts](https://haveibeenpwned.com/Breach/Instagram)
 - SANS Internet Storm Center, InfoCON: green
@@ -62,8 +68,6 @@
   - [RIOT OS 2026.01-devel-317 Stack-Based Buffer Overflow in tapslip6 Utility via Unbounded Device Path Construction](https://seclists.org/fulldisclosure/2026/Jan/15)
   - [TinyOS 2.1.2 Stack-Based Buffer Overflow in mcp2200gpio](https://seclists.org/fulldisclosure/2026/Jan/14)
   - [TinyOS 2.1.2 printfUART Global Buffer Overflow via Unbounded	Format Expansion](https://seclists.org/fulldisclosure/2026/Jan/13)
-- cavallette
-  - [Newsletter Autistici/Inventati  01-2026](https://cavallette.noblogs.org/2026/01/10025)
 - Security Affairs
   - [The ideals of Aaron Swartz in an age of control](https://securityaffairs.com/186792/security/the-ideals-of-aaron-swartz-in-an-age-of-control.html)
   - [SECURITY AFFAIRS MALWARE NEWSLETTER ROUND 79](https://securityaffairs.com/186786/breaking-news/security-affairs-malware-newsletter-round-79.html)
