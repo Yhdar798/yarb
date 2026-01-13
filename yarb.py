@@ -210,11 +210,6 @@ async def job(args):
 
         # 更新today
         update_today(results)
-        print()
-
-        # 直接读取 today.md 推送飞书
-        today_md = root_path.joinpath("today.md")
-        feishu_push_from_file(today_md)
 
     # 推送文章
     proxy_bot = conf['proxy']['url'] if conf['proxy']['bot'] else ''
@@ -282,3 +277,6 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+    # 直接读取 today.md 推送飞书
+    today_md = root_path.joinpath("today.md")
+    feishu_push_from_file(today_md)
