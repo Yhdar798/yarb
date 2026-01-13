@@ -276,7 +276,11 @@ async def main():
         await job(args)
 
 if __name__ == '__main__':
+    global root_path
+    root_path = Path(__file__).absolute().parent
+    
     asyncio.run(main())
+    
     # 直接读取 today.md 推送飞书
     today_md = root_path.joinpath("today.md")
     feishu_push_from_file(today_md)
