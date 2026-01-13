@@ -1,0 +1,25 @@
+name: Feishu Test
+
+on:
+  workflow_dispatch:  # 手动触发
+
+jobs:
+  test-feishu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Run Feishu test script
+        env:
+          FEISHU_HOOK: ${{ secrets.FEISHU_HOOK }}
+        run: python3 feishu_test.py
