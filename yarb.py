@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import re
 import json
 import time
 import asyncio
@@ -20,7 +21,6 @@ import requests
 requests.packages.urllib3.disable_warnings()
 
 today = datetime.datetime.now().strftime("%Y-%m-%d")
-
 
 def update_today(data: list=[]):
     """更新today"""
@@ -219,12 +219,83 @@ async def job(args):
 
     cleanup()
 
+MAX_BODY_SIZE = 20 * 1024  # 20KB
+LINK_RE = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
+
+def md_to_post(md_text: str):
+    """
+    Markdown → 飞书 post 结构
+    """
+    title = ""
+    paragraphs = []
+
+    for line in md_text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+
+        # 一级标题
+        if line.startswith("# "):
+            title = line[2:].strip()
+            continue
+
+        # 列表
+        if line.startswith("- "):
+            line = line[2:].strip()
+
+        paragraph = []
+        pos = 0
+
+        for m in LINK_RE.finditer(line):
+            if m.start() > pos:
+                paragraph.append({
+                    "tag": "text",
+                    "text": line[pos:m.start()]
+                })
+
+            paragraph.append({
+                "tag": "a",
+                "text": m.group(1),
+                "href": m.group(2)
+            })
+            pos = m.end()
+
+        if pos < len(line):
+            paragraph.append({
+                "tag": "text",
+                "text": line[pos:]
+            })
+
+        paragraphs.append(paragraph)
+
+    if not title:
+        title = "每日安全资讯"
+
+    return title, paragraphs
+
+
+def build_post_payload(title, content):
+    payload = {
+        "msg_type": "post",
+        "content": {
+            "post": {
+                "zh_cn": {
+                    "title": title,
+                    "content": content
+                }
+            }
+        }
+    }
+    return json.dumps(payload, ensure_ascii=False).encode("utf-8")
+
+
 def feishu_push_from_file(md_path: Path):
     """
-    读取 today.md 内容并推送到飞书
+    读取 today.md 内容并以 post 富文本方式推送到飞书（支持 20KB 分割）
     """
     webhook = os.getenv("FEISHU_HOOK")
     print(webhook, "你好这是webhook")
+
     if not webhook:
         print("[-] FEISHU_HOOK not set")
         return False
@@ -233,28 +304,35 @@ def feishu_push_from_file(md_path: Path):
         print(f"[-] markdown file not found: {md_path}")
         return False
 
-    content = md_path.read_text(encoding="utf-8")
+    md_text = md_path.read_text(encoding="utf-8")
+    title, paragraphs = md_to_post(md_text)
 
-    payload = {
-        "msg_type": "text",
-        "content": {
-            "text": content[:4000]  # 飞书文本有长度限制，做截断
-        }
-    }
+    headers = {"Content-Type": "application/json"}
+    buffer = []
 
-    try:
-        r = requests.post(
-            webhook,
-            headers={"Content-Type": "application/json"},
-            json=payload,
-            timeout=5
-        )
-        print(f"[+] Feishu push status: {r.status_code}")
-        return r.status_code == 200
-    except Exception as e:
-        print(f"[-] Feishu push exception: {e}")
-        return False
+    for para in paragraphs:
+        candidate = buffer + [para]
+        payload = build_post_payload(title, candidate)
 
+        if len(payload) <= MAX_BODY_SIZE:
+            buffer.append(para)
+        else:
+            if not buffer:
+                print("[-] Single paragraph exceeds 20KB, skip")
+                continue
+
+            print(f"[INFO] Sending payload size={len(build_post_payload(title, buffer))}")
+            r = requests.post(webhook, headers=headers, data=build_post_payload(title, buffer), timeout=5)
+            print(f"[+] Feishu push status: {r.status_code}, {r.text}")
+            buffer = [para]
+
+    if buffer:
+        payload = build_post_payload(title, buffer)
+        print(f"[INFO] Sending payload size={len(payload)}")
+        r = requests.post(webhook, headers=headers, data=payload, timeout=5)
+        print(f"[+] Feishu push status: {r.status_code}, {r.text}")
+
+    return True
 
 
 def argument():
