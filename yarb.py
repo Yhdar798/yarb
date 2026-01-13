@@ -294,7 +294,6 @@ def feishu_push_from_file(md_path: Path):
     读取 today.md 内容并以 post 富文本方式推送到飞书（支持 20KB 分割）
     """
     webhook = os.getenv("FEISHU_HOOK")
-    print(webhook, "你好这是webhook")
 
     if not webhook:
         print("[-] FEISHU_HOOK not set")
