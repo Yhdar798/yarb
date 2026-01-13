@@ -210,15 +210,11 @@ async def job(args):
 
         # 更新today
         update_today(results)
+        print()
 
-        # 推送飞书消息（独立于原来的 bot 逻辑）
-        if results:
-            summary = [f"{title}: {len(v)} articles" for item in results for title, v in item.items()]
-            feishu_message = f"每日安全资讯抓取完成，共 {len(results)} 个源:\n" + "\n".join(summary[:20])
-        else:
-            feishu_message = "每日安全资讯抓取完成，但没有获取到新文章。"
-        
-        feishu_push(feishu_message)
+        # 直接读取 today.md 推送飞书
+        today_md = root_path.joinpath("today.md")
+        feishu_push_from_file(today_md)
 
     # 推送文章
     proxy_bot = conf['proxy']['url'] if conf['proxy']['bot'] else ''
@@ -228,31 +224,42 @@ async def job(args):
 
     cleanup()
 
-def feishu_push(content: str):
+def feishu_push_from_file(md_path: Path):
     """
-    使用 GitHub Actions Secret FEISHU_HOOK 推送消息到飞书机器人
+    读取 today.md 内容并推送到飞书
     """
     webhook = os.getenv("FEISHU_HOOK")
+    print(webhook, "你好这是webhook")
     if not webhook:
-        print("[-] FEISHU_HOOK not set.")
+        print("[-] FEISHU_HOOK not set")
         return False
+
+    if not md_path.exists():
+        print(f"[-] markdown file not found: {md_path}")
+        return False
+
+    content = md_path.read_text(encoding="utf-8")
 
     payload = {
         "msg_type": "text",
-        "content": {"text": content}
+        "content": {
+            "text": content[:4000]  # 飞书文本有长度限制，做截断
+        }
     }
 
     try:
-        r = requests.post(webhook, headers={"Content-Type": "application/json"}, data=json.dumps(payload), timeout=5)
-        if r.status_code == 200:
-            print("[+] Feishu message sent successfully.")
-            return True
-        else:
-            print(f"[-] Feishu push failed: {r.status_code} {r.text}")
-            return False
+        r = requests.post(
+            webhook,
+            headers={"Content-Type": "application/json"},
+            json=payload,
+            timeout=5
+        )
+        print(f"[+] Feishu push status: {r.status_code}")
+        return r.status_code == 200
     except Exception as e:
-        print(f"[-] Exception when sending Feishu message: {e}")
+        print(f"[-] Feishu push exception: {e}")
         return False
+
 
 
 def argument():
