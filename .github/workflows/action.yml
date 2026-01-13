@@ -1,14 +1,12 @@
-# name: old yarb disabled
-on: []
 # https://docs.github.com/cn/actions/automating-builds-and-tests/building-and-testing-python
 
 name: Update dailynews
 
 # 国际标准时间2点（北京时间10点）
-#on:
- # schedule:
- #   - cron: '0 2 * * *'
- # workflow_dispatch:
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
