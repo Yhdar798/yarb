@@ -22,7 +22,7 @@ jobs:
 
       - name: Push articles
         env:
-          FEISHU_KEY: ${{ secrets.FEISHU_KEY }}
+          FEISHU_HOOK: ${{ secrets.FEISHU_HOOK }}
           WECOM_KEY: ${{ secrets.WECOM_KEY }}
           DINGTALK_KEY: ${{ secrets.DINGTALK_KEY }}
           QQ_KEY: ${{ secrets.QQ_KEY }}
