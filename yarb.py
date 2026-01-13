@@ -18,13 +18,13 @@ from bot import *
 from utils import *
 
 import requests
+
 requests.packages.urllib3.disable_warnings()
 
 today = datetime.datetime.now().strftime("%Y-%m-%d")
 
-# ========================= 原有逻辑（完全保留） =========================
 
-def update_today(data: list=[]):
+def update_today(data: list = []):
     """更新today"""
     root_path = Path(__file__).absolute().parent
     data_path = root_path.joinpath('temp_data.json')
@@ -75,7 +75,9 @@ def update_rss(rss: dict, proxy_url=''):
 
 def parseThread(conf: dict, url: str, proxy_url=''):
     """获取文章线程"""
+
     def filter(title: str):
+        """过滤文章"""
         for i in conf['exclude']:
             if i in title:
                 return False
@@ -83,7 +85,9 @@ def parseThread(conf: dict, url: str, proxy_url=''):
 
     proxy = {'http': proxy_url, 'https': proxy_url} if proxy_url else {'http': None, 'https': None}
     headers = {
-        'User-Agent': 'Mozilla/5.0',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
     }
 
     title = ''
@@ -97,34 +101,136 @@ def parseThread(conf: dict, url: str, proxy_url=''):
             yesterday = datetime.date.today() + datetime.timedelta(-1)
             pubday = datetime.date(d[0], d[1], d[2])
             if pubday == yesterday and filter(entry.title):
-                result[entry.title] = entry.link
-        console.print(f'[+] {title}\t{len(result.values())}/{len(r.entries)}', style='bold green')
+                item = {entry.title: entry.link}
+                print(item)
+                result |= item
+        console.print(f'[+] {title}\t{url}\t{len(result.values())}/{len(r.entries)}', style='bold green')
     except Exception as e:
         console.print(f'[-] failed: {url}', style='bold red')
         print(e)
     return title, result
 
 
-# ========================= 飞书增强部分 =========================
+async def init_bot(conf: dict, proxy_url=''):
+    """初始化机器人"""
+    bots = []
+    for name, v in conf.items():
+        if v['enabled']:
+            key = os.getenv(v['secrets']) or v['key']
 
-MAX_BODY_SIZE = 20 * 1024
+            if name == 'mail':
+                receiver = os.getenv(v['secrets_receiver']) or v['receiver']
+                bot = globals()[f'{name}Bot'](v['address'], key, receiver, v['from'], v['server'])
+                bots.append(bot)
+            elif name == 'qq':
+                bot = globals()[f'{name}Bot'](v['group_id'])
+                if await bot.start_server(v['qq_id'], key):
+                    bots.append(bot)
+            elif name == 'telegram':
+                bot = globals()[f'{name}Bot'](key, v['chat_id'], proxy_url)
+                if await bot.test_connect():
+                    bots.append(bot)
+            else:
+                bot = globals()[f'{name}Bot'](key, proxy_url)
+                bots.append(bot)
+    return bots
+
+
+def init_rss(conf: dict, update: bool = False, proxy_url=''):
+    """初始化订阅源"""
+    rss_list = []
+    enabled = [{k: v} for k, v in conf.items() if v['enabled']]
+    for rss in enabled:
+        if update:
+            if rss := update_rss(rss, proxy_url):
+                rss_list.append(rss)
+        else:
+            (key, value), = rss.items()
+            rss_list.append({key: root_path.joinpath(f'rss/{value["filename"]}')})
+
+    # 合并相同链接
+    feeds = []
+    for rss in rss_list:
+        (_, value), = rss.items()
+        try:
+            rss = listparser.parse(open(value).read())
+            for feed in rss.feeds:
+                url = feed.url.strip().rstrip('/')
+                short_url = url.split('://')[-1].split('www.')[-1]
+                check = [feed for feed in feeds if short_url in feed]
+                if not check:
+                    feeds.append(url)
+        except Exception as e:
+            console.print(f'[-] 解析失败：{value}', style='bold red')
+            print(e)
+
+    console.print(f'[+] {len(feeds)} feeds', style='bold yellow')
+    return feeds
+
+
+def cleanup():
+    """结束清理"""
+    qqBot.kill_server()
+
+
+async def job(args):
+    """定时任务"""
+    print(f'{pyfiglet.figlet_format("yarb")}\n{today}')
+
+    global root_path
+    root_path = Path(__file__).absolute().parent
+    if args.config:
+        config_path = Path(args.config).expanduser().absolute()
+    else:
+        config_path = root_path.joinpath('config.json')
+    with open(config_path) as f:
+        conf = json.load(f)
+
+    proxy_rss = conf['proxy']['url'] if conf['proxy']['rss'] else ''
+    feeds = init_rss(conf['rss'], args.update, proxy_rss)
+
+    results = []
+    if args.test:
+        # 测试数据
+        results.extend({f'test{i}': {Pattern.create(i * 500): 'test'}} for i in range(1, 20))
+    else:
+        # 获取文章
+        numb = 0
+        tasks = []
+        with ThreadPoolExecutor(100) as executor:
+            tasks.extend(executor.submit(parseThread, conf['keywords'], url, proxy_rss) for url in feeds)
+            for task in as_completed(tasks):
+                title, result = task.result()
+                if result:
+                    numb += len(result.values())
+                    results.append({title: result})
+        console.print(f'[+] {len(results)} feeds, {numb} articles', style='bold yellow')
+
+        # temp_path = root_path.joinpath('temp_data.json')
+        # with open(temp_path, 'w+') as f:
+        #     f.write(json.dumps(results, indent=4, ensure_ascii=False))
+        #     console.print(f'[+] temp data: {temp_path}', style='bold yellow')
+
+        # 更新today
+        update_today(results)
+
+    # 推送文章
+    proxy_bot = conf['proxy']['url'] if conf['proxy']['bot'] else ''
+    bots = await init_bot(conf['bot'], proxy_bot)
+    for bot in bots:
+        await bot.send(bot.parse_results(results))
+
+    cleanup()
+
+
+MAX_BODY_SIZE = 20 * 1024  # 20KB
 LINK_RE = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
 
 
-def split_text_by_bytes(text: str, max_bytes: int):
-    """UTF-8 安全拆 text"""
-    buf = ""
-    for ch in text:
-        if len((buf + ch).encode("utf-8")) > max_bytes:
-            yield buf
-            buf = ch
-        else:
-            buf += ch
-    if buf:
-        yield buf
-
-
 def md_to_post(md_text: str):
+    """
+    Markdown → 飞书 post 结构
+    """
     title = ""
     paragraphs = []
 
@@ -133,27 +239,44 @@ def md_to_post(md_text: str):
         if not line:
             continue
 
+        # 一级标题
         if line.startswith("# "):
             title = line[2:].strip()
             continue
 
+        # 列表
         if line.startswith("- "):
             line = line[2:].strip()
 
-        para = []
+        paragraph = []
         pos = 0
+
         for m in LINK_RE.finditer(line):
             if m.start() > pos:
-                para.append({"tag": "text", "text": line[pos:m.start()]})
-            para.append({"tag": "a", "text": m.group(1), "href": m.group(2)})
+                paragraph.append({
+                    "tag": "text",
+                    "text": line[pos:m.start()]
+                })
+
+            paragraph.append({
+                "tag": "a",
+                "text": m.group(1),
+                "href": m.group(2)
+            })
             pos = m.end()
 
         if pos < len(line):
-            para.append({"tag": "text", "text": line[pos:]})
+            paragraph.append({
+                "tag": "text",
+                "text": line[pos:]
+            })
 
-        paragraphs.append(para)
+        paragraphs.append(paragraph)
 
-    return title or "每日安全资讯", paragraphs
+    if not title:
+        title = "每日安全资讯"
+
+    return title, paragraphs
 
 
 def build_post_payload(title, content):
@@ -172,65 +295,56 @@ def build_post_payload(title, content):
 
 
 def feishu_push_from_file(md_path: Path):
+    """
+    读取 today.md 内容并以 post 富文本方式推送到飞书（支持 20KB 分割）
+    """
     webhook = os.getenv("FEISHU_HOOK")
-    if not webhook or not md_path.exists():
+
+    if not webhook:
+        print("[-] FEISHU_HOOK not set")
         return False
 
-    title, paragraphs = md_to_post(md_path.read_text(encoding="utf-8"))
+    if not md_path.exists():
+        print(f"[-] markdown file not found: {md_path}")
+        return False
+
+    md_text = md_path.read_text(encoding="utf-8")
+    title, paragraphs = md_to_post(md_text)
+
     headers = {"Content-Type": "application/json"}
-
-    def send(buf):
-        payload = build_post_payload(title, buf)
-        print(f"[INFO] Sending payload size={len(payload)}")
-        r = requests.post(webhook, headers=headers, data=payload, timeout=5)
-        print(f"[+] Feishu push status: {r.status_code}")
-
     buffer = []
 
     for para in paragraphs:
-        if len(build_post_payload(title, buffer + [para])) <= MAX_BODY_SIZE:
+        candidate = buffer + [para]
+        payload = build_post_payload(title, candidate)
+
+        if len(payload) <= MAX_BODY_SIZE:
             buffer.append(para)
-            continue
-
-        if buffer:
-            send(buffer)
-            buffer = []
-
-        new_para = []
-        for node in para:
-            if node["tag"] != "text":
-                if len(build_post_payload(title, [new_para + [node]])) > MAX_BODY_SIZE:
-                    send([new_para])
-                    new_para = [node]
-                else:
-                    new_para.append(node)
+        else:
+            if not buffer:
+                print("[-] Single paragraph exceeds 20KB, skip")
                 continue
 
-            for part in split_text_by_bytes(node["text"], MAX_BODY_SIZE // 2):
-                tnode = {"tag": "text", "text": part}
-                if len(build_post_payload(title, [new_para + [tnode]])) > MAX_BODY_SIZE:
-                    send([new_para])
-                    new_para = [tnode]
-                else:
-                    new_para.append(tnode)
-
-        if new_para:
-            buffer.append(new_para)
+            print(f"[INFO] Sending payload size={len(build_post_payload(title, buffer))}")
+            r = requests.post(webhook, headers=headers, data=build_post_payload(title, buffer), timeout=5)
+            print(f"[+] Feishu push status: {r.status_code}, {r.text}")
+            buffer = [para]
 
     if buffer:
-        send(buffer)
+        payload = build_post_payload(title, buffer)
+        print(f"[INFO] Sending payload size={len(payload)}")
+        r = requests.post(webhook, headers=headers, data=payload, timeout=5)
+        print(f"[+] Feishu push status: {r.status_code}, {r.text}")
 
     return True
 
 
-# ========================= 原有入口保持不变 =========================
-
 def argument():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--update', action='store_true')
-    parser.add_argument('--cron', type=str)
-    parser.add_argument('--config', type=str)
-    parser.add_argument('--test', action='store_true')
+    parser.add_argument('--update', help='Update RSS config file', action='store_true', required=False)
+    parser.add_argument('--cron', help='Execute scheduled tasks every day (eg:"11:00")', type=str, required=False)
+    parser.add_argument('--config', help='Use specified config file', type=str, required=False)
+    parser.add_argument('--test', help='Test bot', action='store_true', required=False)
     return parser.parse_args()
 
 
@@ -246,6 +360,11 @@ async def main():
 
 
 if __name__ == '__main__':
+    global root_path
     root_path = Path(__file__).absolute().parent
+
     asyncio.run(main())
-    feishu_push_from_file(root_path.joinpath("today.md"))
+
+    # 直接读取 today.md 推送飞书
+    today_md = root_path.joinpath("today.md")
+    feishu_push_from_file(today_md)
