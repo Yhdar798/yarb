@@ -211,6 +211,15 @@ async def job(args):
         # 更新today
         update_today(results)
 
+        # 推送飞书消息（独立于原来的 bot 逻辑）
+        if results:
+            summary = [f"{title}: {len(v)} articles" for item in results for title, v in item.items()]
+            feishu_message = f"每日安全资讯抓取完成，共 {len(results)} 个源:\n" + "\n".join(summary[:20])
+        else:
+            feishu_message = "每日安全资讯抓取完成，但没有获取到新文章。"
+        
+        feishu_push(feishu_message)
+
     # 推送文章
     proxy_bot = conf['proxy']['url'] if conf['proxy']['bot'] else ''
     bots = await init_bot(conf['bot'], proxy_bot)
@@ -218,6 +227,32 @@ async def job(args):
         await bot.send(bot.parse_results(results))
 
     cleanup()
+
+def feishu_push(content: str):
+    """
+    使用 GitHub Actions Secret FEISHU_HOOK 推送消息到飞书机器人
+    """
+    webhook = os.getenv("FEISHU_HOOK")
+    if not webhook:
+        print("[-] FEISHU_HOOK not set.")
+        return False
+
+    payload = {
+        "msg_type": "text",
+        "content": {"text": content}
+    }
+
+    try:
+        r = requests.post(webhook, headers={"Content-Type": "application/json"}, data=json.dumps(payload), timeout=5)
+        if r.status_code == 200:
+            print("[+] Feishu message sent successfully.")
+            return True
+        else:
+            print(f"[-] Feishu push failed: {r.status_code} {r.text}")
+            return False
+    except Exception as e:
+        print(f"[-] Exception when sending Feishu message: {e}")
+        return False
 
 
 def argument():
